@@ -1,0 +1,7 @@
+streamlit
+pandas
+numpy
+regex
+lxml
+beautifulsoup4
+html5lib
