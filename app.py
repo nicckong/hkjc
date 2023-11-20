@@ -58,10 +58,17 @@ recent_results_agg = recent_results.pivot_table(index=['馬名'],
                         values=['日期', '馬場/跑道/賽道', '途程', '場地狀況', '賽事班次', '檔位', '騎師', '練馬師'],
                         aggfunc=lambda x: "/".join(str(v) for v in x)).reset_index()
 data = df_race.merge(recent_results_agg, on = '馬名', how = 'left') 
-data.columns = ['horse_no', 'past_pla', 'horse_name', 'weight','jockey', 'draw', 'trainer', 'rating', 'rating_change',
-                    'priority', 'upcoming_race', 'international_rating', 'current_loc', 'origin_age',
+print (data.shape[0])
+if data.shape[1] == 22:
+    data.columns = ['horse_no', 'past_pla', 'horse_name', 'weight','jockey', 'draw', 'trainer', 'rating', 'rating_change',
+                    'priority', 'upcoming_race', 'current_loc', 'origin_age',
        'upcoming_race_no','going', 'past_race_dates', 'past_draws', 'past_trainers','past_race_classes', 'past_dist',
                     'past_races_info', 'past_jockeys']
+else: 
+    data.columns = ['horse_no', 'past_pla', 'horse_name', 'weight','jockey', 'draw', 'trainer', 'rating', 'rating_change',
+                        'priority', 'upcoming_race', 'international_rating', 'current_loc', 'origin_age',
+        'upcoming_race_no','going', 'past_race_dates', 'past_draws', 'past_trainers','past_race_classes', 'past_dist',
+                        'past_races_info', 'past_jockeys']
 data.jockey = data.jockey.str.replace(r'[\(\-\d+)]', '')
 data.trainer = data.trainer.str.replace(r'[\(\-\d+)]', '')
 
