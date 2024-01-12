@@ -19,6 +19,7 @@ class hkjc:
     self.url = 'https://racing.hkjc.com/racing/information/chinese/Racing/JKCScheduledRides.aspx'
     self.race_url = 'https://racing.hkjc.com/racing/information/chinese/Racing/RaceCard.aspx'
     self.start_url = "https://racing.hkjc.com"
+    self.vet_url = "https://racing.hkjc.com/racing/information/Chinese/VeterinaryRecords/OVERecord.aspx"
     self.current_loc_dict = {}
     self.origin_age_dict = {}
 
@@ -147,6 +148,39 @@ class hkjc:
     result['race_recency'] = result.groupby(['馬名'])['日期'].rank(ascending = False)
     result['日期'] = result['日期'].dt.strftime('%m-%d')
     return result
+  
+  def get_vet_records(self):
+    try:
+      page = self.getPage(self.vet_url)
+      soup = BeautifulSoup(page.text, 'html.parser')
+      table = soup.find('table', attrs={'class': 'list f_fs16 f_ffmA'})
+      df_vet_records = pd.concat(pd.read_html(str(table)))
+    except:
+      df_vet_records = pd.DateFrame()
+    
+    if df_vet_records.shape[0] > 0:
+      df_vet_records.columns = ['場次', 'horse_no', '馬名', '烙印編號','vet_date', 'vet_details', 'vet_pass_date']
+      df_vet_records.dropna(how = 'all', inplace=True)
+      df_vet_records.drop(['場次', 'horse_no', '烙印編號'], axis=1, inplace=True)
+      
+    return df_vet_records
+  
+  def get_track_stats(self):
+    url = "https://racing.hkjc.com/racing/information/English/racing/Draw.aspx#race1"
+    page = self.getPage(url)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    l = []
+
+    for i in range(len(soup.find_all('table', attrs={'class': 'table_bd f_tac f_fs12'}))):
+      table = soup.find_all('table', attrs={'class': 'table_bd f_tac f_fs12'})[i]
+      df_temp = pd.concat(pd.read_html(str(table)))
+      df_temp.dropna(axis = 1, inplace = True)
+      df_temp.columns = ['draw', 'runners', 'win', 'sec', 'third', 'fourth', 'w', 'q', 'pla', 'f']
+      df_temp['upcoming_race_no'] = i+1
+      df_temp.drop(['fourth', 'f'], axis=1, inplace=True)
+      l.append(df_temp)
+      df_track_stat = pd.concat(l)
+      return df_track_stat
 
   def get_race_info(self):
     page = self.getPage(self.race_url)
@@ -203,5 +237,14 @@ class hkjc:
 
     df_race['current_loc'] = df_race["馬名"].map(self.current_loc_dict)
     df_race['origin_age'] = df_race["馬名"].map(self.origin_age_dict)
-    return df_race, result
+    
+    df_vet_records = self.get_vet_records()
+    print ("vet_records: ", df_vet_records.shape)
+    
+    if df_vet_records.shape[0] > 0:
+      df_race = df_race.merge(df_vet_records, on = "馬名", how = "left")
+    
+    df_track_stats = self.get_track_stats()
+    
+    return df_race, result, df_track_stats
 
