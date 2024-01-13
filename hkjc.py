@@ -162,15 +162,15 @@ class hkjc:
       df_vet_records.columns = ['場次', 'horse_no', '馬名', '烙印編號','vet_date', 'vet_details', 'vet_pass_date']
       df_vet_records.dropna(how = 'all', inplace=True)
       df_vet_records.drop(['場次', 'horse_no', '烙印編號'], axis=1, inplace=True)
-      
+    
     return df_vet_records
   
   def get_track_stats(self):
     url = "https://racing.hkjc.com/racing/information/English/racing/Draw.aspx#race1"
     page = self.getPage(url)
     soup = BeautifulSoup(page.text, 'html.parser')
+    
     l = []
-
     for i in range(len(soup.find_all('table', attrs={'class': 'table_bd f_tac f_fs12'}))):
       table = soup.find_all('table', attrs={'class': 'table_bd f_tac f_fs12'})[i]
       df_temp = pd.concat(pd.read_html(str(table)))
@@ -179,8 +179,9 @@ class hkjc:
       df_temp['upcoming_race_no'] = i+1
       df_temp.drop(['fourth', 'f'], axis=1, inplace=True)
       l.append(df_temp)
-      df_track_stat = pd.concat(l)
-      return df_track_stat
+      
+    df_track_stat = pd.concat(l)
+    return df_track_stat
 
   def get_race_info(self):
     page = self.getPage(self.race_url)
@@ -243,6 +244,7 @@ class hkjc:
     
     if df_vet_records.shape[0] > 0:
       df_race = df_race.merge(df_vet_records, on = "馬名", how = "left")
+      df_race.drop_duplicates(inplace=True)
     
     df_track_stats = self.get_track_stats()
     
