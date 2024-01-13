@@ -27,7 +27,7 @@ data_load_state.text('Loading data...done!')
 #choose race 
 df_race['upcoming_race_no'] = df_race['upcoming_race'].apply(lambda x: x.split('_')[0])
 df_race.upcoming_race_no = df_race.upcoming_race_no.astype(int)
-race_no = st.radio("Choose Race No.", (range(df_race.upcoming_race_no.min(), df_race.upcoming_race_no.max()+1)), horizontal = True)
+race_no = st.radio("Choose Race No.", (range(1, df_race.upcoming_race_no.max()+1)), horizontal = True)
 
 upcoming_race = ' '.join(df_race[df_race.upcoming_race_no == race_no].upcoming_race.unique()[0].split('_')[1:])
 
