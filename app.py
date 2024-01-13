@@ -155,7 +155,7 @@ st.dataframe(filtered_data.style.applymap(color_rode_before, subset=['rode_befor
 
 
 st.write('Track Stats')
-st.dataframe(filtered_data_track.iloc[:-1, :])
+st.dataframe(filtered_data_track.iloc[:-1, :].astype(int))
 st.write(' '.join(filtered_data_track.iloc[-1, :2].tolist()))
 
 if f == True:
