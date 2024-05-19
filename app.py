@@ -34,24 +34,37 @@ upcoming_race = ' '.join(df_race[df_race.upcoming_race_no == race_no].upcoming_r
 st.subheader(upcoming_race)
 
 f = False
- 
-# condition
+
+# 第三班 "C+3" 沙田1400米草地北京會所1400米讓賽
+
+temp_track = upcoming_race[upcoming_race.find('"'):]
+
+if "沙田" in upcoming_race and "草地" in upcoming_race:
+    track = '沙田草地' + temp_track 
+elif "跑馬地" in upcoming_race and "草地" in upcoming_race:
+    track = '跑馬地草地' + temp_track
+else:
+    track = "沙田全天候"
+  
+# condition    
 if len(upcoming_race.split(' ')) == 4:
     field_condition = upcoming_race.split(' ')[1]
-    race = upcoming_race.split(' ')[2]
-    dist = upcoming_race.split(' ')[-1][:-1]
+    # race = upcoming_race.split(' ')[2]
+    dist = upcoming_race[upcoming_race.find('米')-4: upcoming_race.find('米')]
+    #dist = upcoming_race.split(' ')[-1][:-1]
     if '黏' in field_condition or '濕' in field_condition:
         f = True
 else:
     if "全天候" in upcoming_race:
-        race = "全天候"
+        track = "沙田全天候"
         dist = upcoming_race.split(' ')[-1][-5:-1]
         if "濕" in upcoming_race or '黏' in upcoming_race:
             f = True
 
     else:
-        race = upcoming_race.split(' ')[-1]
-        dist = upcoming_race.split(' ')[1][:-1]
+        # race = upcoming_race.split(' ')[-1]
+        dist = upcoming_race[upcoming_race.find('米')-4: upcoming_race.find('米')]
+        #dist = upcoming_race.split(' ')[1][:-1]
 recent_results = result.query('race_recency <= 6')
     
 recent_results_agg = recent_results.pivot_table(index=['馬名'],
@@ -113,10 +126,14 @@ def color_trained_before(val):
 
 #new race track
 df_temp = filtered_data.query('~past_races_info.isnull()')
-new_track = df_temp[~df_temp.past_races_info.str.contains(race)].horse_name.unique()
+
+new_track = []
+for i in range(len(df_temp)):
+    if track not in df_temp.iloc[i].past_races_info:
+        new_track.append(df_temp.iloc[i].horse_name)
 
 if len(new_track) > 0:
-    st.write('New to ', race, ':' , ', '.join(new_track))
+    st.write('New to ', track, ':' , ', '.join(new_track))
 
 #new distance 
 df_temp = filtered_data.query('~past_dist.isnull()')
