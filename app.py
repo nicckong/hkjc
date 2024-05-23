@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import regex as re
 from hkjc import hkjc
+from datetime import datetime as dt  
   
 st.header("🐴🏇🏼Giddy Up🏇🏼🐴")
 st.caption("-- where horsing around meets the joy of learning and exploration --")
@@ -11,13 +12,14 @@ st.caption("-- where horsing around meets the joy of learning and exploration --
 
 @st.cache_data
 def load_data():
-    df_race, result, df_track_stats  = hkjc().get_race_info()
-    return df_race, result, df_track_stats 
+    df_race, result, df_track_stats, race_date  = hkjc().get_race_info()
+    return df_race, result, df_track_stats, race_date 
+
  
 # Create a text element and let the reader know the data is loading.
 data_load_state = st.text('Loading data...')
 # Load 10,000 rows of data into the dataframe.
-df_race, result, df_track_stats = load_data()
+df_race, result, df_track_stats, race_date = load_data()
 # Notify the reader that the data was successfully loaded.
 data_load_state.text('Loading data...done!')
  
@@ -35,9 +37,7 @@ st.subheader(upcoming_race)
 
 f = False
 
-# 第三班 "C+3" 沙田1400米草地北京會所1400米讓賽
-
-temp_track = upcoming_race[upcoming_race.find('"'):]
+temp_track = upcoming_race[upcoming_race.find('"'): upcoming_race.find('"') + upcoming_race[upcoming_race.find('"')+1:].find('"')+2]
 
 if "沙田" in upcoming_race and "草地" in upcoming_race:
     track = '沙田草地' + temp_track 
@@ -159,12 +159,30 @@ if len(filtered_data_vet) > 0:
 filtered_data = filtered_data.drop(['past_trainers', 'weight', 'priority', 'trained_before', 'current_loc'], 
                                    axis = 1) 
 
-col_order = ['horse_name',  'draw', 'past_pla', 'jockey','rode_before', 'trainer', 'rating',
+
+filtered_data.past_race_dates.fillna('-', inplace=True)
+
+def get_rest_day(x):
+    if x!= '-':
+        last_race = x.split('|')[0]
+        if dt.strptime(last_race+str(dt.today().year), '%m-%d%Y') < dt.today():
+            return (race_date - dt.strptime(last_race+str(dt.today().year), '%m-%d%Y')).days
+        else:
+            return (race_date - dt.strptime(last_race+str(dt.today().year-1), '%m-%d%Y')).days
+    else: 
+        return 0
+    
+filtered_data["last_race"] = filtered_data.past_race_dates.apply(get_rest_day)
+
+
+col_order = ['horse_name' ,'draw', 'past_pla', 'jockey','rode_before', 'trainer','last_race' ,'rating',
              'going', 'past_draws', 'past_race_classes', 'past_dist',
              'past_races_info', 'past_race_dates', 'past_jockeys', 'wt',
              'origin_age', 'rating_change']
 
 filtered_data = filtered_data[col_order]
+
+
 
 st.write('Data')
 st.dataframe(filtered_data.style.applymap(color_rode_before, subset=['rode_before'])
