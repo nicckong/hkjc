@@ -8,6 +8,7 @@ from urllib.parse import urljoin
 import warnings
 from time import time
 from math import cos, pi, floor
+from datetime import datetime as dt
 
 warnings.filterwarnings("ignore")
 
@@ -248,5 +249,16 @@ class hkjc:
     
     df_track_stats = self.get_track_stats()
     
-    return df_race, result, df_track_stats
+    
+    page = self.getPage('https://racing.hkjc.com/racing/information/English/racing/RaceCard.aspx')
+    soup = BeautifulSoup(page.text, 'html.parser')
+    race_date = soup.find('a', attrs = {'class': 'blueBtn1'}).text.split(' - ')[0]
+    
+    
+    if dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y") < dt.today():
+        race_date = dt.strptime(race_date + ', ' + str(dt.today().year-1), "%d %B, %Y")
+    else:
+        race_date = dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y")
+    
+    return df_race, result, df_track_stats, race_date
 
