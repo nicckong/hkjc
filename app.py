@@ -57,7 +57,7 @@ if len(upcoming_race.split(' ')) == 4:
 else:
     if "全天候" in upcoming_race:
         track = "沙田全天候"
-        dist = upcoming_race.split(' ')[-1][-5:-1]
+        dist = upcoming_race[upcoming_race.find('米')-4: upcoming_race.find('米')]
         if "濕" in upcoming_race or '黏' in upcoming_race:
             f = True
 
@@ -65,6 +65,7 @@ else:
         # race = upcoming_race.split(' ')[-1]
         dist = upcoming_race[upcoming_race.find('米')-4: upcoming_race.find('米')]
         #dist = upcoming_race.split(' ')[1][:-1]
+        
 recent_results = result.query('race_recency <= 6')
     
 recent_results_agg = recent_results.pivot_table(index=['馬名'],
@@ -182,8 +183,7 @@ col_order = ['horse_name' ,'draw', 'past_pla', 'jockey','rode_before', 'trainer'
 
 filtered_data = filtered_data[col_order]
 
-
-
+st.write(race_date.strftime('%Y-%m-%d'))
 st.write('Data')
 st.dataframe(filtered_data.style.applymap(color_rode_before, subset=['rode_before'])
              , height = (filtered_data.shape[0] + 1) * 35 + 5)
