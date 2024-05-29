@@ -195,10 +195,14 @@ class hkjc:
       race_info_links.append('https://bet.hkjc.com/racing/pages/odds_wp.aspx?lang=ch&'+i['href'].lower())
 
     race_info_links =  [i for i in race_info_links if 'hv' in i or 'st' in i]
-    race_info_links.append(race_info_links[0][:-1]+ '1')
+    if len(set(range(1, max([int(i[-1]) for i in race_info_links])+1)).difference([int(i[-1]) for i in race_info_links])) == 0:
+      missing_race = str(max([int(i[-1]) for i in race_info_links ])+1)
+    else:
+      missing_race = str(list(set(range(1, max([int(i[-1]) for i in race_info_links ])+1)).difference([int(i[-1]) for i in race_info_links]))[0])
+      race_info_links.append(race_info_links[0][:-1]+ missing_race)
 
     race_cards =  [i for i in race_cards if 'HV' in i or 'ST' in i]
-    race_cards.append(race_cards[0][:-1]+ '1')
+    race_cards.append(race_cards[0][:-1]+ missing_race)
 
     race_info_links = [i.replace('racecourse', 'venue') for i in race_info_links]
     old_date_format = re.search(r'(\d+/\d+/\d+)', race_info_links[0])[0]
@@ -221,6 +225,7 @@ class hkjc:
       + '_'+ s.split(', ')[-1].strip(' ') + '_'+ rc + ''.join(s.split(', ')[4:-1]).strip(' ')
 
     races = []
+
     for u in race_cards:
       page = self.getPage(u)
       soup = BeautifulSoup(page.text, 'html.parser')
@@ -256,9 +261,9 @@ class hkjc:
     
     
     if dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y") < dt.today():
-        race_date = dt.strptime(race_date + ', ' + str(dt.today().year-1), "%d %B, %Y")
-    else:
         race_date = dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y")
+    else:
+        race_date = dt.strptime(race_date + ', ' + str(dt.today().year-1), "%d %B, %Y")
     
     return df_race, result, df_track_stats, race_date
 
