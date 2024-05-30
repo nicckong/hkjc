@@ -195,11 +195,14 @@ class hkjc:
       race_info_links.append('https://bet.hkjc.com/racing/pages/odds_wp.aspx?lang=ch&'+i['href'].lower())
 
     race_info_links =  [i for i in race_info_links if 'hv' in i or 'st' in i]
-    if len(set(range(1, max([int(i[-1]) for i in race_info_links])+1)).difference([int(i[-1]) for i in race_info_links])) == 0:
-      missing_race = str(max([int(i[-1]) for i in race_info_links ])+1)
+    dummy_x = [int(i[-1]) if i[-2] == '=' else int(i[-2:]) if i[-3] == '=' else 0 for i in race_info_links]
+    
+    if len(set(range(1, max(dummy_x)+1)).difference(dummy_x)) == 0:
+      missing_race = str(max(dummy_x)+1)
     else:
-      missing_race = str(list(set(range(1, max([int(i[-1]) for i in race_info_links ])+1)).difference([int(i[-1]) for i in race_info_links]))[0])
-      race_info_links.append(race_info_links[0][:-1]+ missing_race)
+      missing_race = str(list(set(range(1, max(dummy_x)+1)).difference(dummy_x))[0])
+    
+    race_info_links.append(race_info_links[0][:-1]+ missing_race)
 
     race_cards =  [i for i in race_cards if 'HV' in i or 'ST' in i]
     race_cards.append(race_cards[0][:-1]+ missing_race)
@@ -252,18 +255,8 @@ class hkjc:
       df_race = df_race.merge(df_vet_records, on = "馬名", how = "left")
       df_race.drop_duplicates(inplace=True)
     
-    df_track_stats = self.get_track_stats()
-    
-    
-    page = self.getPage('https://racing.hkjc.com/racing/information/English/racing/RaceCard.aspx')
-    soup = BeautifulSoup(page.text, 'html.parser')
-    race_date = soup.find('a', attrs = {'class': 'blueBtn1'}).text.split(' - ')[0]
-    
-    
-    if dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y") < dt.today():
-        race_date = dt.strptime(race_date + ', ' + str(dt.today().year), "%d %B, %Y")
-    else:
-        race_date = dt.strptime(race_date + ', ' + str(dt.today().year-1), "%d %B, %Y")
+    df_track_stats = self.get_track_stats()      
+    race_date = dt.strptime(race_info_links[-1].split('&date=')[1][:10], "%Y-%m-%d")
     
     return df_race, result, df_track_stats, race_date
 
