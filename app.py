@@ -33,7 +33,12 @@ race_no = st.radio("Choose Race No.", (range(1, df_race.upcoming_race_no.max()+1
 
 upcoming_race = ' '.join(df_race[df_race.upcoming_race_no == race_no].upcoming_race.unique()[0].split('_')[1:])
 
-st.subheader(upcoming_race)
+st.write("#### ", """{a}<br>{b}<br>{c}
+         """.format(a = ','.join(upcoming_race.split(' ')[:4]), 
+                    b = ','.join(upcoming_race.split(' ')[4:8]), 
+                    c = ','.join(upcoming_race.split(' ')[8:]))
+, unsafe_allow_html=True)
+
 
 f = False
 

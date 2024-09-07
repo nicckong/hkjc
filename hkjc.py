@@ -214,19 +214,28 @@ class hkjc:
     race_info_links = [i.replace('?racedate', 'date') for i in race_info_links]
 
     race_dict = {}
-
-    for i in race_info_links:
-      if 'st' in i:
-        rc = '沙田'
-      else:
-        rc = '跑馬地'
-      print (i)
+    
+    for i in race_cards:
+      # if 'ST' in i or 'st' in i:
+      #   rc = '沙田'
+      # else:
+      #   rc = '跑馬地'
+      
+      # page = self.getPage(i)
+      # soup = BeautifulSoup(page.text, 'html.parser')
+      # s = soup.find('span', attrs = {'class' : "content"}).text
+      # race_dict[re.findall('\d+', i)[-1]] = re.findall('\d+', i)[-1] + '_'+ s.split(', ')[3].strip(' ')\
+      # + '_'+ s.split(', ')[-1].strip(' ') + '_'+ rc + ''.join(s.split(', ')[4:-1]).strip(' ')
+      
       page = self.getPage(i)
-      soup = BeautifulSoup(page.text, 'html.parser')
-      s = soup.find('span', attrs = {'class' : "content"}).text
-      race_dict[re.findall('\d+', i)[-1]] = re.findall('\d+', i)[-1] + '_'+ s.split(', ')[3].strip(' ')\
-      + '_'+ s.split(', ')[-1].strip(' ') + '_'+ rc + ''.join(s.split(', ')[4:-1]).strip(' ')
-
+      soup = BeautifulSoup(page.text,  'lxml') #'html.parser')
+      races = soup.find('div' ,attrs={'class':'f_fs13'}).text
+      races = races.replace(' ', '')
+      races = races.replace(re.findall('\d+:\d+', races)[0], re.findall('\d+:\d+', races)[0] + ',')
+      races = races.replace('獎金', ',獎金')
+      
+      race_dict[re.findall('\d+', i)[-1]] = re.findall('\d+', i)[-1] + '_' + races.replace(',', '_')
+    
     races = []
 
     for u in race_cards:
