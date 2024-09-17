@@ -32,6 +32,9 @@ df_race.upcoming_race_no = df_race.upcoming_race_no.astype(int)
 race_no = st.radio("Choose Race No.", (range(1, df_race.upcoming_race_no.max()+1)), horizontal = True)
 
 upcoming_race = ' '.join(df_race[df_race.upcoming_race_no == race_no].upcoming_race.unique()[0].split('_')[1:])
+prize_money = upcoming_race[upcoming_race.find('金:')+2:upcoming_race.find('_評')].replace('_', ',')
+upcoming_race  = upcoming_race.replace(upcoming_race [upcoming_race.find('金:')+2:upcoming_race.find('_評')], prize_money)
+
 
 st.write("#### ", """{a}<br>{b}<br>{c}
          """.format(a = ','.join(upcoming_race.split(' ')[:4]), 
