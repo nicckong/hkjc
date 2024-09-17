@@ -97,7 +97,7 @@ data.trainer = data.trainer.str.replace(r'[\(\-\d+)]', '')
 
 def jockey(df):
   try:
-    if df.jockey in df.past_jockeys:
+    if re.sub('\(-\d+\)', '', df.jockey).strip(' ') in df.past_jockeys:
       return 'Y'
     else:
       return 'N'
