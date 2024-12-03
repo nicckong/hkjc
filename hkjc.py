@@ -17,7 +17,8 @@ import requests
 
 class hkjc:
   def __init__(self):
-    self.url = 'https://racing.hkjc.com/racing/information/chinese/Racing/JKCScheduledRides.aspx'
+    # self.url = 'https://racing.hkjc.com/racing/information/chinese/Racing/JKCScheduledRides.aspx'
+    self.url = 'https://racing.hkjc.com/racing/information/chinese/Racing/JockeysRides.aspx'
     self.race_url = 'https://racing.hkjc.com/racing/information/chinese/Racing/RaceCard.aspx'
     self.start_url = "https://racing.hkjc.com"
     self.vet_url = "https://racing.hkjc.com/racing/information/Chinese/VeterinaryRecords/OVERecord.aspx"
@@ -134,6 +135,7 @@ class hkjc:
     df_list = []
     start_time = time()
     horse_info_links = self.horse_links()
+    print(len(horse_info_links))
 
     for link in horse_info_links:
         try:

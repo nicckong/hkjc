@@ -79,11 +79,13 @@ recent_results = result.query('race_recency <= 6')
 recent_results_agg = recent_results.pivot_table(index=['馬名'],
                         values=['日期', '馬場/跑道/賽道', '途程', '場地狀況', '賽事班次', '檔位', '騎師', '練馬師', '實際負磅'],
                         aggfunc=lambda x: "|".join(str(v) for v in x)).reset_index()
+
 data = df_race.merge(recent_results_agg, on = '馬名', how = 'left') 
 data_vet = df_race[['upcoming_race_no', '馬匹編號', '馬名', 'vet_date', 'vet_details', 'vet_pass_date']]
 data_vet.dropna(subset=['vet_date'], inplace=True)
 data_vet.columns = ['upcoming_race_no', 'horse_no', 'horse_name', 'vet_date', 'vet_details', 'vet_pass_date']
 data.drop(['vet_date', 'vet_details', 'vet_pass_date'], axis=1, inplace=True)
+
 
 if data.shape[1] == 23:
     data.columns = ['horse_no', 'past_pla', 'horse_name', 'weight', 'jockey', 'draw', 'trainer', 'rating', 'rating_change',
@@ -122,6 +124,8 @@ data["trained_before"] = data.apply(trainer, axis = 1)
 filtered_data = data[data.upcoming_race_no == race_no].drop(['upcoming_race_no', 'upcoming_race'], axis = 1).set_index('horse_no')
 filtered_data_vet = data_vet[data_vet.upcoming_race_no == race_no].drop(['upcoming_race_no'], axis=1).set_index('horse_no')
 filtered_data_track = df_track_stats[df_track_stats.upcoming_race_no == race_no].drop(['upcoming_race_no'], axis=1).set_index('draw')
+  
+
   
 def color_rode_before(val):
     color = 'red' if val=="N" else 'green'
